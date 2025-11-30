@@ -23,6 +23,7 @@ scrape_configs:
         - https://stream.moodyrahman.com
         - https://mediaserver.moodyrahman.com
         - https://requests.moodyrahman.com
+        - http://ermes.tail5b1a8.ts.net:8006
 
     relabel_configs:
       - source_labels: [__address__]
