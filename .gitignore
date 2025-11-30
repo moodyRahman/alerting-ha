@@ -1,2 +1,3 @@
 serve_configs/
 tailscale-nginx/
+ntfy/server.yml
