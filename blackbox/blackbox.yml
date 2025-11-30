@@ -1,0 +1,10 @@
+modules:
+
+  http_2xx:
+    prober: http
+    timeout: 10s
+    http:
+      method: GET
+      valid_status_codes: [200]   # Only 200 is considered "up"
+      tls_config:
+        insecure_skip_verify: false   # set to true if you have a self-signed cert

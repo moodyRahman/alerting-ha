@@ -1,0 +1,19 @@
+groups:
+- name: uptime tester
+  rules:
+  - alert: flicks down
+    expr: probe_success{instance="https://flicks.moodyrahman.com"} == 0
+    for: 20s
+    labels:
+      severity: critical
+    annotations:
+      summary: "https://flicks.moodyrahman.com is down"
+
+
+  - alert: stream down
+    expr: probe_success{instance="https://stream.moodyrahman.com"} == 0
+    for: 5s
+    labels:
+      severity: critical
+    annotations:
+      summary: "https://stream.moodyrahman.com is down"

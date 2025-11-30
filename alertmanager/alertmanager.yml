@@ -1,0 +1,9 @@
+route:
+  receiver: ntfy
+
+receivers:
+  - name: ntfy
+    webhook_configs:
+      - url: "http://proxy:9001"
+        max_alerts: 0   # send alerts individually
+        send_resolved: false

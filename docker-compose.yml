@@ -1,0 +1,118 @@
+
+services:
+
+  tailscale-remote:
+    image: tailscale/tailscale:latest
+    container_name: tailscale-remote
+    hostname: heirophant
+    environment:
+      - TS_AUTHKEY=$TS_AUTHKEY
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_USERSPACE=false
+    volumes:
+      - ${PWD}/tailscale-nginx/state:/var/lib/tailscale
+      - /dev/net/tun:/dev/net/tun
+      - ${PWD}/serve_configs:/var/lib/serve_configs
+    cap_add:
+      - net_admin
+      - sys_module
+    restart: unless-stopped
+    dns:
+      - 100.100.100.100
+      - 8.8.8.8
+      - 100.100.100.100
+  
+
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:latest
+    restart: unless-stopped
+    volumes:
+      - ./prometheus/:/etc/prometheus/
+    command:
+      - --web.enable-remote-write-receiver
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --web.external-url=http://jolyne:9090
+    ports:
+     - 100.115.33.99:9090:9090
+
+  alertmanager:
+    container_name: alertmanager
+    image: prom/alertmanager:latest
+    restart: unless-stopped
+    volumes:
+      - ./alertmanager:/etc/alertmanager/
+    ports:
+      - 100.115.33.99:9093:9093
+      - 127.0.0.1:9093:9093
+
+    command:
+      - "--web.external-url=http://jolyne:9093"
+      - "--config.file=/etc/alertmanager/alertmanager.yml"
+
+  blackbox:
+    container_name: blackbox
+    image: quay.io/prometheus/blackbox-exporter:latest
+    volumes:
+      - ./blackbox:/config
+    restart: unless-stopped
+    ports:
+      - 100.115.33.99:9115:9115
+      - 127.0.0.1:9115:9115
+
+
+
+  proxy:
+    build: ./webhook
+    container_name: proxy
+    restart: unless-stopped
+    ports:
+      - 100.115.33.99:9001:9001
+      - 127.0.0.1:9001:9001
+
+
+
+
+  ntfy:
+    image: binwiederhier/ntfy:latest
+    container_name: ntfy
+    command:
+      - serve
+    environment:
+      - TZ=UTC    # optional: Change to your desired timezone
+    volumes:
+      - ./ntfy_cache:/var/cache/ntfy
+      - ./ntfy:/etc/ntfy
+    restart: unless-stopped
+    ports:
+      - 100.115.33.99:7070:7070
+
+  # web:
+  #   image: nginx
+  #   container_name: o11y-web
+  #   restart: unless-stopped
+  #   volumes:
+  #     - ./alerts.conf:/etc/nginx/nginx.conf
+  #   depends_on:
+  #     - tailscale-remote
+  #   network_mode: service:tailscale-remote
+
+
+  o11y-glance:
+    image: glanceapp/glance
+    container_name: o11y-glance
+    restart: unless-stopped
+    volumes:
+      - ./config:/app/config
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    depends_on:
+      - tailscale-remote
+    network_mode: service:tailscale-remote
+
+
+  # docker run --rm \
+  # -p 9115/tcp \
+  # --name blackbox_exporter \
+  # -v $(pwd):/config \
+  # quay.io/prometheus/blackbox-exporter:latest --config.file=/config/blackbox.yml

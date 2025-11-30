@@ -1,0 +1,37 @@
+pages:
+  - name: Home
+    columns:
+      - size: full
+        widgets:
+
+          - type: monitor
+            cache: 1m
+            title: Services
+            sites:
+
+              - title: "NTFY"
+                url: http://jolyne:7070/
+                icon: si:ntfy
+                allow-insecure: true
+
+              - title: "Blackbox Exporter"
+                url: http://jolyne:9115/
+                icon: si:serverfault
+                allow-insecure: true
+
+              - title: "Prometheus"
+                url: http://jolyne:9090/
+                icon: si:prometheus
+                allow-insecure: true
+
+              - title: "Alertmanager"
+                url: http://jolyne:9093/
+                icon: si:affine
+                allow-insecure: true
+
+theme:
+  background-color: 240 21 15
+  contrast-multiplier: 1.2
+  primary-color: 217 92 83
+  positive-color: 115 54 76
+  negative-color: 347 70 65
